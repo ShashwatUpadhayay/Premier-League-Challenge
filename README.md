@@ -4,7 +4,6 @@
 
 Built for the **Microsoft x Premier League "Inside the Game: Developer Hackathon"**.
 
-> **Team:** [team name] · **Demo video:** [link] · **Live demo:** [link]
 
 ---
 
