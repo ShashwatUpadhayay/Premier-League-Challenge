@@ -103,43 +103,7 @@ Explanations are only published if they pass a check. A model-written explanatio
 | Fabric, AI Search, Speech, Container Apps | Planned |
 | Evaluation run and results | Planned |
 
-## Quick start
 
-Requires Python 3.10 or later. The core has no dependencies.
-
-```bash
-git clone [repo url]
-cd decision-intelligence
-
-make test      # unit tests
-make demo      # print the analysis for one synthetic match
-make serve     # open http://localhost:8000
-```
-
-To switch on Azure features, copy `.env.example` to `.env`, fill in your keys, and install the optional client:
-
-```bash
-pip install -r requirements.txt
-```
-
-Without keys, explanations use the built-in template and text stays in English.
-
-## Project structure
-
-```
-src/dig/
-  synthetic.py   Match generator (replace with the real dataset adapter)
-  detector.py    Offside, penalty and second-yellow checks
-  laws.py        Law summaries (replace with AI Search retrieval)
-  impact.py      What-if expected-points model
-  explainer.py   Grounded explanations and guardrail
-  translate.py   Azure AI Translator client
-  pipeline.py    Wires the stages together
-  server.py      Local API and static UI
-web/             Demo UI
-tests/           Unit tests
-docs/PLAN.md     Delivery plan
-```
 
 ## Responsible AI and limitations
 
@@ -166,13 +130,7 @@ docs/PLAN.md     Delivery plan
 5. Add spoken recaps with Azure AI Speech.
 6. Add studio and fan views, and deploy to Azure Container Apps.
 
-## Event details
 
-| | |
-|---|---|
-| Event | Inside the Game: Developer Hackathon (Microsoft and the Premier League) |
-| Hacking period | October 6 to October 27, 2026, 11:59 PM PT |
-| Rules | https://aka.ms/insidethegame/rules |
 
 ## Sources
 
