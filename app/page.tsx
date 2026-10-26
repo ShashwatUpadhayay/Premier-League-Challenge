@@ -15,7 +15,7 @@ import {
   ALL_FACT_PACKS
 } from '@/lib/match-data';
 import { FactPack, ExplanationDraft, CheckStepAudit, MatchEvent } from '@/lib/types';
-import { Radio, ShieldCheck, Database, Tv, Crosshair, Volume2, CheckCircle2 } from 'lucide-react';
+import { Radio, ShieldCheck, Database, Tv, Crosshair, Volume2 } from 'lucide-react';
 
 export default function Home() {
   const [activeMode, setActiveMode] = useState<'live' | 'kmi'>('live');
@@ -396,22 +396,6 @@ export default function Home() {
                   />
                 )}
 
-                {/* Helpful Guidance Card for Demo Judges */}
-                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-purple-900" />
-                    <h4 className="text-xs font-bold text-slate-900">
-                      Live Demo Flow for Hackathon Judges
-                    </h4>
-                  </div>
-                  <ol className="text-xs text-slate-600 space-y-1 list-decimal list-inside leading-relaxed">
-                    <li>Switch between any of the <strong>5 premier league fixtures</strong> using the match dropdown at the top.</li>
-                    <li>Select an incident (e.g. <strong>Penalty Overturns</strong>, <strong>Red Cards</strong>, <strong>SAOT Offside</strong>).</li>
-                    <li>Click <strong>&ldquo;Generate Clean Draft&rdquo;</strong> to run the Check Step verification gate.</li>
-                    <li>Click <strong>&ldquo;Test Fake Figure&rdquo;</strong> to witness the automatic deterministic rule fallback.</li>
-                    <li>Click <strong>&ldquo;Approve for Broadcast&rdquo;</strong> to see the TV lower-third and hear the <strong>Stadium PA Announcer</strong>.</li>
-                  </ol>
-                </div>
               </div>
 
             </div>
