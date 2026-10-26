@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Play, Pause, RotateCcw, AlertCircle, Clock, FastForward } from 'lucide-react';
+import { FactPack } from '@/lib/types';
 
 interface SimulationBarProps {
   currentMinute: number;
@@ -13,40 +14,16 @@ interface SimulationBarProps {
   onSpeedChange: (speed: number) => void;
   onJumpToIncident: (incidentId: string) => void;
   activeIncidentId: string | null;
+  availableIncidents?: FactPack[];
 }
 
-const INCIDENTS = [
-  { 
-    id: 'INC_14_PENALTY', 
-    label: "14' Penalty Overturn", 
-    desc: 'Simulation Sanction',
-    activeStyle: 'bg-amber-50 text-amber-900 border-amber-300 ring-2 ring-amber-200' 
-  },
-  { 
-    id: 'INC_34_RED_CARD', 
-    label: "34' Red Card Review", 
-    desc: 'Serious Foul Play',
-    activeStyle: 'bg-rose-50 text-rose-800 border-rose-300 ring-2 ring-rose-200' 
-  },
-  { 
-    id: 'INC_54_GOALLINE', 
-    label: "54' Goal-Line Check", 
-    desc: 'Hawk-Eye 9mm On Line',
-    activeStyle: 'bg-emerald-50 text-emerald-900 border-emerald-300 ring-2 ring-emerald-200' 
-  },
-  { 
-    id: 'INC_68_HANDBALL', 
-    label: "68' Handball Appeal", 
-    desc: 'Unnatural Silhouette',
-    activeStyle: 'bg-purple-50 text-purple-900 border-purple-300 ring-2 ring-purple-200' 
-  },
-  { 
-    id: 'INC_88_OFFSIDE', 
-    label: "88' Disallowed Goal", 
-    desc: 'SAOT Semi-Auto Offside',
-    activeStyle: 'bg-sky-50 text-sky-800 border-sky-300 ring-2 ring-sky-200' 
-  },
-];
+const CATEGORY_COLORS: Record<string, string> = {
+  PENALTY:     'bg-amber-50 text-amber-900 border-amber-300 ring-2 ring-amber-200',
+  RED_CARD:    'bg-rose-50 text-rose-800 border-rose-300 ring-2 ring-rose-200',
+  GOAL_REVIEW: 'bg-emerald-50 text-emerald-900 border-emerald-300 ring-2 ring-emerald-200',
+  HANDBALL:    'bg-purple-50 text-purple-900 border-purple-300 ring-2 ring-purple-200',
+  OFFSIDE:     'bg-sky-50 text-sky-800 border-sky-300 ring-2 ring-sky-200',
+};
 
 export function SimulationBar({
   currentMinute,
@@ -57,9 +34,24 @@ export function SimulationBar({
   speed,
   onSpeedChange,
   onJumpToIncident,
-  activeIncidentId
+  activeIncidentId,
+  availableIncidents
 }: SimulationBarProps) {
   const pad = (n: number) => n.toString().padStart(2, '0');
+
+  const incidents = availableIncidents && availableIncidents.length > 0
+    ? availableIncidents.map(fp => ({
+        id: fp.incidentId,
+        label: `${fp.minute}' ${fp.category.replace('_', ' ')} Review`,
+        activeStyle: CATEGORY_COLORS[fp.category] || 'bg-purple-50 text-purple-900 border-purple-300 ring-2 ring-purple-200'
+      }))
+    : [
+        { id: 'INC_14_PENALTY', label: "14' Penalty Overturn", activeStyle: CATEGORY_COLORS.PENALTY },
+        { id: 'INC_34_RED_CARD', label: "34' Red Card Review", activeStyle: CATEGORY_COLORS.RED_CARD },
+        { id: 'INC_54_GOALLINE', label: "54' Goal-Line Check", activeStyle: CATEGORY_COLORS.GOAL_REVIEW },
+        { id: 'INC_68_HANDBALL', label: "68' Handball Appeal", activeStyle: CATEGORY_COLORS.HANDBALL },
+        { id: 'INC_88_OFFSIDE', label: "88' Disallowed Goal", activeStyle: CATEGORY_COLORS.OFFSIDE },
+      ];
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-3">
@@ -95,7 +87,7 @@ export function SimulationBar({
         <button
           onClick={onReset}
           className="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition border border-slate-200 cursor-pointer"
-          title="Reset Simulation to 14' Penalty"
+          title="Reset Simulation to initial incident"
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
@@ -119,14 +111,14 @@ export function SimulationBar({
         </div>
       </div>
 
-      {/* Right: Select Key Incident (5 moments across match) */}
+      {/* Right: Select Key Incident */}
       <div className="flex items-center gap-1.5 flex-wrap">
         <span className="text-xs text-slate-500 font-semibold flex items-center gap-1 mr-1">
           <AlertCircle className="w-3.5 h-3.5 text-purple-900" />
-          <span className="hidden sm:inline">Incidents (5):</span>
+          <span className="hidden sm:inline">Incidents ({incidents.length}):</span>
         </span>
 
-        {INCIDENTS.map(inc => (
+        {incidents.map(inc => (
           <button
             key={inc.id}
             onClick={() => onJumpToIncident(inc.id)}

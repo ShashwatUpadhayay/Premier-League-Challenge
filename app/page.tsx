@@ -10,20 +10,28 @@ import { PitchVisualizer } from '@/components/studio/pitch-visualizer';
 import { AudioAnnouncer } from '@/components/studio/audio-announcer';
 import { KmiPortal } from '@/components/kmi/kmi-portal';
 import {
-  CURRENT_MATCH,
-  MATCH_FACT_PACKS,
-  KMI_PANEL_RECORDS
+  PREMIER_LEAGUE_MATCHES,
+  MATCH_DATABASE,
+  ALL_FACT_PACKS
 } from '@/lib/match-data';
 import { FactPack, ExplanationDraft, CheckStepAudit, MatchEvent } from '@/lib/types';
 import { Radio, ShieldCheck, Database, Tv, Crosshair, Volume2, CheckCircle2 } from 'lucide-react';
 
 export default function Home() {
   const [activeMode, setActiveMode] = useState<'live' | 'kmi'>('live');
+  const [selectedMatchId, setSelectedMatchId] = useState<string>('PL-2024-MATCH-842');
+  
+  // Active match data bundle
+  const activeBundle = MATCH_DATABASE[selectedMatchId] || MATCH_DATABASE['PL-2024-MATCH-842'];
+  const activeMatch = activeBundle.metadata;
+  const availableFactPacks = Object.values(activeBundle.factPacks);
+  const initialIncident = availableFactPacks[0] || null;
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
-  const [currentMinute, setCurrentMinute] = useState(14);
-  const [currentSecond, setCurrentSecond] = useState(22);
-  const [activeIncidentId, setActiveIncidentId] = useState<string | null>('INC_14_PENALTY');
+  const [currentMinute, setCurrentMinute] = useState(initialIncident?.minute || 14);
+  const [currentSecond, setCurrentSecond] = useState(initialIncident?.second || 22);
+  const [activeIncidentId, setActiveIncidentId] = useState<string | null>(initialIncident?.incidentId || 'INC_14_PENALTY');
   
   // Left column tab: 'gate' (AI Audit & Approval) vs 'facts' (Ground Truth Telemetry)
   const [leftTab, setLeftTab] = useState<'gate' | 'facts'>('gate');
@@ -31,7 +39,7 @@ export default function Home() {
   // Right column tab: 'broadcast' (Live TV Feed) vs 'pitch' (Tactical 2D Pitch) vs 'audio' (Stadium PA Mic)
   const [rightTab, setRightTab] = useState<'broadcast' | 'pitch' | 'audio'>('broadcast');
 
-  const [factPack, setFactPack] = useState<FactPack | null>(MATCH_FACT_PACKS['INC_14_PENALTY']);
+  const [factPack, setFactPack] = useState<FactPack | null>(initialIncident);
   const [draft, setDraft] = useState<ExplanationDraft | null>(null);
   const [checkAudit, setCheckAudit] = useState<CheckStepAudit | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -64,7 +72,7 @@ export default function Home() {
 
   const handleJumpToIncident = useCallback((incidentId: string) => {
     setActiveIncidentId(incidentId);
-    const targetFactPack = MATCH_FACT_PACKS[incidentId];
+    const targetFactPack = ALL_FACT_PACKS[incidentId];
     if (targetFactPack) {
       setFactPack(targetFactPack);
       setCurrentMinute(targetFactPack.minute);
@@ -73,6 +81,24 @@ export default function Home() {
     }
   }, [loadExplanation]);
 
+  // Handle switching active match
+  const handleSelectMatch = useCallback((newMatchId: string) => {
+    setSelectedMatchId(newMatchId);
+    setIsPlaying(false);
+    setRecentEvents([]);
+    
+    const newBundle = MATCH_DATABASE[newMatchId] || MATCH_DATABASE['PL-2024-MATCH-842'];
+    const firstInc = Object.values(newBundle.factPacks)[0];
+    if (firstInc) {
+      setActiveIncidentId(firstInc.incidentId);
+      setFactPack(firstInc);
+      setCurrentMinute(firstInc.minute);
+      setCurrentSecond(firstInc.second);
+      loadExplanation(firstInc.incidentId);
+    }
+  }, [loadExplanation]);
+
+  // Initial load
   useEffect(() => {
     const timer = setTimeout(() => {
       loadExplanation('INC_14_PENALTY');
@@ -80,6 +106,7 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [loadExplanation]);
 
+  // Handle SSE streaming for currently selected match
   useEffect(() => {
     if (!isPlaying) {
       if (eventSourceRef.current) {
@@ -90,7 +117,7 @@ export default function Home() {
       return;
     }
 
-    const sse = new EventSource(`/api/match-stream?speed=${speed}`);
+    const sse = new EventSource(`/api/match-stream?matchId=${selectedMatchId}&speed=${speed}`);
     eventSourceRef.current = sse;
 
     sse.onopen = () => setIsStreaming(true);
@@ -102,7 +129,7 @@ export default function Home() {
         setCurrentMinute(event.minute);
         setCurrentSecond(event.second);
         setRecentEvents(prev => [event, ...prev.slice(0, 3)]);
-        if (event.isContested && event.incidentId && MATCH_FACT_PACKS[event.incidentId]) {
+        if (event.isContested && event.incidentId && ALL_FACT_PACKS[event.incidentId]) {
           handleJumpToIncident(event.incidentId);
         }
       } catch (err) {
@@ -132,13 +159,15 @@ export default function Home() {
       eventSourceRef.current = null;
       setIsStreaming(false);
     };
-  }, [isPlaying, speed, handleJumpToIncident]);
+  }, [isPlaying, speed, selectedMatchId, handleJumpToIncident]);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans selection:bg-purple-100 selection:text-purple-900">
-      {/* Premier League Header */}
+      {/* Premier League Header with Match Selector */}
       <Header
-        match={CURRENT_MATCH}
+        match={activeMatch}
+        matches={PREMIER_LEAGUE_MATCHES}
+        onSelectMatch={handleSelectMatch}
         activeMode={activeMode}
         onModeChange={setActiveMode}
         isStreaming={isStreaming}
@@ -147,7 +176,7 @@ export default function Home() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-6 py-5 flex flex-col gap-4">
         {activeMode === 'live' ? (
           <>
-            {/* Top Control Strip: Simulation & 5 Incident Quick Pickers */}
+            {/* Top Control Strip: Simulation & Incident Quick Pickers */}
             <SimulationBar
               currentMinute={currentMinute}
               currentSecond={currentSecond}
@@ -155,12 +184,13 @@ export default function Home() {
               onTogglePlay={() => setIsPlaying(!isPlaying)}
               onReset={() => {
                 setIsPlaying(false);
-                handleJumpToIncident('INC_14_PENALTY');
+                if (initialIncident) handleJumpToIncident(initialIncident.incidentId);
               }}
               speed={speed}
               onSpeedChange={setSpeed}
               onJumpToIncident={handleJumpToIncident}
               activeIncidentId={activeIncidentId}
+              availableIncidents={availableFactPacks}
             />
 
             {/* Live Ticker Feed */}
@@ -171,9 +201,9 @@ export default function Home() {
                   Live Feed:
                 </span>
                 <div className="flex items-center gap-2">
-                  {recentEvents.map(evt => (
+                  {recentEvents.map((evt, idx) => (
                     <div
-                      key={evt.eventId}
+                      key={`${evt.eventId}_${evt.minute}_${idx}`}
                       className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-50 border border-slate-200 shrink-0 text-xs"
                     >
                       <span className="font-mono text-purple-900 font-bold tabular-nums">{evt.minute}&apos;</span>
@@ -195,7 +225,7 @@ export default function Home() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                       <span className="text-xs font-bold text-slate-900">
-                        Contested Review — Minute {factPack.minute}&apos;
+                        {activeMatch.homeTeam} vs {activeMatch.awayTeam} — Minute {factPack.minute}&apos;
                       </span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-900 border border-purple-200 uppercase font-mono">
                         {factPack.category}
@@ -316,7 +346,7 @@ export default function Home() {
                       }`}
                     >
                       <Crosshair className="w-3.5 h-3.5 text-purple-900" />
-                      <span>2D Pitch (SAOT)</span>
+                      <span>2D Pitch</span>
                     </button>
 
                     <button
@@ -328,7 +358,7 @@ export default function Home() {
                       }`}
                     >
                       <Volume2 className="w-3.5 h-3.5 text-purple-900" />
-                      <span>Stadium PA Audio</span>
+                      <span>Stadium PA</span>
                     </button>
                   </div>
 
@@ -345,11 +375,17 @@ export default function Home() {
                     isApproved={isApproved}
                     currentMinute={currentMinute}
                     currentSecond={currentSecond}
+                    match={activeMatch}
                   />
                 )}
 
                 {rightTab === 'pitch' && (
-                  <PitchVisualizer factPack={factPack} />
+                  <PitchVisualizer
+                    factPack={factPack}
+                    match={activeMatch}
+                    availableIncidents={availableFactPacks}
+                    onSelectIncident={handleJumpToIncident}
+                  />
                 )}
 
                 {rightTab === 'audio' && (
@@ -369,10 +405,11 @@ export default function Home() {
                     </h4>
                   </div>
                   <ol className="text-xs text-slate-600 space-y-1 list-decimal list-inside leading-relaxed">
-                    <li>Select any of the <strong>5 incidents</strong> (14&apos; Penalty, 34&apos; Red Card, 54&apos; Goal-Line, 68&apos; Handball, 88&apos; Offside).</li>
+                    <li>Switch between any of the <strong>5 premier league fixtures</strong> using the match dropdown at the top.</li>
+                    <li>Select an incident (e.g. <strong>Penalty Overturns</strong>, <strong>Red Cards</strong>, <strong>SAOT Offside</strong>).</li>
                     <li>Click <strong>&ldquo;Generate Clean Draft&rdquo;</strong> to run the Check Step verification gate.</li>
-                    <li>Test edge-cases: Click <strong>&ldquo;Test Fake Figure&rdquo;</strong> to observe instant automatic fallback.</li>
-                    <li>Click <strong>&ldquo;Approve for Broadcast Overlay&rdquo;</strong> to stage the lower third and listen to the <strong>Stadium PA Announcer</strong>.</li>
+                    <li>Click <strong>&ldquo;Test Fake Figure&rdquo;</strong> to witness the automatic deterministic rule fallback.</li>
+                    <li>Click <strong>&ldquo;Approve for Broadcast&rdquo;</strong> to see the TV lower-third and hear the <strong>Stadium PA Announcer</strong>.</li>
                   </ol>
                 </div>
               </div>
@@ -380,8 +417,8 @@ export default function Home() {
             </div>
           </>
         ) : (
-          /* Mode 2: Key Match Incidents (KMI) Dossier */
-          <KmiPortal records={KMI_PANEL_RECORDS} />
+          /* Mode 2: Key Match Incidents (KMI) Dossier for selected match */
+          <KmiPortal records={activeBundle.kmiRecords} />
         )}
       </main>
 

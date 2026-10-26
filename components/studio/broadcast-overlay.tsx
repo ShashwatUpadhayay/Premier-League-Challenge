@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { FactPack, CheckStepAudit } from '@/lib/types';
+import { FactPack, CheckStepAudit, MatchMetadata } from '@/lib/types';
 import { Tv, ShieldCheck, Activity, MonitorPlay } from 'lucide-react';
 
 interface BroadcastOverlayProps {
@@ -10,6 +10,7 @@ interface BroadcastOverlayProps {
   isApproved: boolean;
   currentMinute: number;
   currentSecond: number;
+  match?: MatchMetadata;
 }
 
 export function BroadcastOverlay({
@@ -17,11 +18,17 @@ export function BroadcastOverlay({
   checkAudit,
   isApproved,
   currentMinute,
-  currentSecond
+  currentSecond,
+  match
 }: BroadcastOverlayProps) {
   const formatTime = (min: number, sec: number) => {
     return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   };
+
+  const homeCode = match ? match.homeTeam.slice(0, 3).toUpperCase() : 'ARS';
+  const awayCode = match ? match.awayTeam.slice(0, 3).toUpperCase() : 'MCI';
+  const homeScore = match ? match.homeScore : 1;
+  const awayScore = match ? match.awayScore : 0;
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col gap-3">
@@ -61,12 +68,12 @@ export function BroadcastOverlay({
           <div className="flex items-center rounded-lg overflow-hidden text-xs font-bold shadow-lg border border-white/10">
             <div className="bg-[#38003c] text-white px-3 py-1 flex items-center gap-1.5">
               <span className="font-black text-xs text-white">PL</span>
-              <span className="font-bold text-white tracking-wider">ARS</span>
-              <span className="bg-white/15 px-1.5 py-0.2 rounded font-mono text-white text-xs">1</span>
+              <span className="font-bold text-white tracking-wider">{homeCode}</span>
+              <span className="bg-white/15 px-1.5 py-0.2 rounded font-mono text-white text-xs">{homeScore}</span>
             </div>
             <div className="bg-slate-900/95 text-white px-3 py-1 flex items-center gap-1.5 border-l border-white/10">
-              <span className="bg-white/10 px-1.5 py-0.2 rounded font-mono text-slate-300 text-xs">0</span>
-              <span className="font-bold text-white tracking-wider">MCI</span>
+              <span className="bg-white/10 px-1.5 py-0.2 rounded font-mono text-slate-300 text-xs">{awayScore}</span>
+              <span className="font-bold text-white tracking-wider">{awayCode}</span>
             </div>
             <div className="bg-slate-800 text-white font-mono px-2.5 py-1 font-bold border-l border-white/10 text-xs">
               {formatTime(currentMinute, currentSecond)}
