@@ -148,6 +148,38 @@ function generateSimulatedAIDraft(
 
   // Well-grounded valid draft
   switch (factPack.category) {
+    case 'PENALTY':
+      return {
+        incidentId: factPack.incidentId,
+        headline: `Penalty Overturned: Zero Contact & Simulation Sanction`,
+        fanExplanation: 
+          `At minute ${factPack.minute}', VAR reviewed the penalty awarded against Joško Gvardiol. Optical tracking confirmed Gvardiol withdrew his foot before contact, and Bukayo Saka initiated the fall. Under ${primaryLaw}, the penalty was overturned and a simulation caution was issued. [${factPack.eventCitations.join(', ')}]`,
+        studioBrief: `Penalty cancelled under ${primaryLaw}. Clear and obvious error: defender withdrew challenge, attacker committed simulation.`,
+        citedEventIds: [...factPack.eventCitations],
+        citedLaws: [primaryLaw],
+        impactEstimate: {
+          label: 'ESTIMATE',
+          xgDelta: factPack.impact.xgDelta,
+          winProbSummary: factPack.impact.summary
+        }
+      };
+
+    case 'GOAL_REVIEW':
+      return {
+        incidentId: factPack.incidentId,
+        headline: `No Goal: Goal-Line Tech Verifies Ball Remained 9mm on Line`,
+        fanExplanation: 
+          `At minute ${factPack.minute}', Goal-Line Technology confirmed no goal on Erling Haaland's header. High-speed 120 fps Hawk-Eye cameras verified that while 98.6% of the ball crossed the line, 9mm of circumference remained in contact with the plane of the goal line under ${primaryLaw}. [${factPack.eventCitations.join(', ')}]`,
+        studioBrief: `No Goal confirmed by Hawk-Eye GLT under ${primaryLaw}. Ball was 9mm from entirely crossing the goal line.`,
+        citedEventIds: [...factPack.eventCitations],
+        citedLaws: [primaryLaw],
+        impactEstimate: {
+          label: 'ESTIMATE',
+          xgDelta: factPack.impact.xgDelta,
+          winProbSummary: factPack.impact.summary
+        }
+      };
+
     case 'HANDBALL':
       return {
         incidentId: factPack.incidentId,

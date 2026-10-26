@@ -7,6 +7,7 @@ import { FactPackPanel } from '@/components/studio/fact-pack-panel';
 import { CheckGateInspector } from '@/components/studio/check-gate-inspector';
 import { BroadcastOverlay } from '@/components/studio/broadcast-overlay';
 import { PitchVisualizer } from '@/components/studio/pitch-visualizer';
+import { AudioAnnouncer } from '@/components/studio/audio-announcer';
 import { KmiPortal } from '@/components/kmi/kmi-portal';
 import {
   CURRENT_MATCH,
@@ -14,23 +15,23 @@ import {
   KMI_PANEL_RECORDS
 } from '@/lib/match-data';
 import { FactPack, ExplanationDraft, CheckStepAudit, MatchEvent } from '@/lib/types';
-import { Radio, ShieldCheck, Database, Tv, Crosshair, CheckCircle2 } from 'lucide-react';
+import { Radio, ShieldCheck, Database, Tv, Crosshair, Volume2, CheckCircle2 } from 'lucide-react';
 
 export default function Home() {
   const [activeMode, setActiveMode] = useState<'live' | 'kmi'>('live');
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
-  const [currentMinute, setCurrentMinute] = useState(68);
-  const [currentSecond, setCurrentSecond] = useState(42);
-  const [activeIncidentId, setActiveIncidentId] = useState<string | null>('INC_68_HANDBALL');
+  const [currentMinute, setCurrentMinute] = useState(14);
+  const [currentSecond, setCurrentSecond] = useState(22);
+  const [activeIncidentId, setActiveIncidentId] = useState<string | null>('INC_14_PENALTY');
   
   // Left column tab: 'gate' (AI Audit & Approval) vs 'facts' (Ground Truth Telemetry)
   const [leftTab, setLeftTab] = useState<'gate' | 'facts'>('gate');
 
-  // Right column tab: 'broadcast' (Live TV Feed) vs 'pitch' (Tactical 2D Pitch)
-  const [rightTab, setRightTab] = useState<'broadcast' | 'pitch'>('broadcast');
+  // Right column tab: 'broadcast' (Live TV Feed) vs 'pitch' (Tactical 2D Pitch) vs 'audio' (Stadium PA Mic)
+  const [rightTab, setRightTab] = useState<'broadcast' | 'pitch' | 'audio'>('broadcast');
 
-  const [factPack, setFactPack] = useState<FactPack | null>(MATCH_FACT_PACKS['INC_68_HANDBALL']);
+  const [factPack, setFactPack] = useState<FactPack | null>(MATCH_FACT_PACKS['INC_14_PENALTY']);
   const [draft, setDraft] = useState<ExplanationDraft | null>(null);
   const [checkAudit, setCheckAudit] = useState<CheckStepAudit | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -74,7 +75,7 @@ export default function Home() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      loadExplanation('INC_68_HANDBALL');
+      loadExplanation('INC_14_PENALTY');
     }, 0);
     return () => clearTimeout(timer);
   }, [loadExplanation]);
@@ -146,7 +147,7 @@ export default function Home() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-6 py-5 flex flex-col gap-4">
         {activeMode === 'live' ? (
           <>
-            {/* Top Control Strip: Simulation & Incident Picker */}
+            {/* Top Control Strip: Simulation & 5 Incident Quick Pickers */}
             <SimulationBar
               currentMinute={currentMinute}
               currentSecond={currentSecond}
@@ -154,7 +155,7 @@ export default function Home() {
               onTogglePlay={() => setIsPlaying(!isPlaying)}
               onReset={() => {
                 setIsPlaying(false);
-                handleJumpToIncident('INC_68_HANDBALL');
+                handleJumpToIncident('INC_14_PENALTY');
               }}
               speed={speed}
               onSpeedChange={setSpeed}
@@ -162,7 +163,7 @@ export default function Home() {
               activeIncidentId={activeIncidentId}
             />
 
-            {/* Live Ticker Feed (Only when streaming or events present) */}
+            {/* Live Ticker Feed */}
             {recentEvents.length > 0 && (
               <div className="bg-white border border-slate-200 rounded-lg px-3.5 py-2 flex items-center gap-2 overflow-x-auto shadow-2xs">
                 <span className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1.5 shrink-0">
@@ -286,21 +287,21 @@ export default function Home() {
 
               {/* Right Column (5 cols = ~42% width): Live Staging & Visual Output */}
               <div className="lg:col-span-5 flex flex-col gap-3">
-                {/* Clean Tab Selector for Right Column */}
+                {/* Clean Tab Selector for Right Column: TV Feed, 2D Pitch, Stadium PA Mic */}
                 <div className="flex items-center justify-between bg-slate-200/70 p-1 rounded-xl border border-slate-300/70">
-                  <div className="flex items-center gap-1 w-full sm:w-auto">
+                  <div className="flex items-center gap-1 w-full sm:w-auto flex-wrap">
                     <button
                       onClick={() => setRightTab('broadcast')}
-                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
                         rightTab === 'broadcast'
                           ? 'bg-white text-slate-900 shadow-xs'
                           : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      <Tv className="w-4 h-4 text-purple-900" />
-                      <span>TV Broadcast Feed</span>
+                      <Tv className="w-3.5 h-3.5 text-purple-900" />
+                      <span>TV Feed</span>
                       {isApproved && (
-                        <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-800 font-bold font-mono">
+                        <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-800 font-bold font-mono">
                           ON AIR
                         </span>
                       )}
@@ -308,24 +309,36 @@ export default function Home() {
 
                     <button
                       onClick={() => setRightTab('pitch')}
-                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
                         rightTab === 'pitch'
                           ? 'bg-white text-slate-900 shadow-xs'
                           : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      <Crosshair className="w-4 h-4 text-purple-900" />
-                      <span>Tactical 2D Pitch (SAOT)</span>
+                      <Crosshair className="w-3.5 h-3.5 text-purple-900" />
+                      <span>2D Pitch (SAOT)</span>
+                    </button>
+
+                    <button
+                      onClick={() => setRightTab('audio')}
+                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        rightTab === 'audio'
+                          ? 'bg-white text-slate-900 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <Volume2 className="w-3.5 h-3.5 text-purple-900" />
+                      <span>Stadium PA Audio</span>
                     </button>
                   </div>
 
-                  <span className="text-[11px] font-mono text-slate-500 hidden md:inline px-3 font-semibold">
-                    Studio Staging
+                  <span className="text-[11px] font-mono text-slate-500 hidden xl:inline px-2 font-semibold">
+                    Staging
                   </span>
                 </div>
 
                 {/* Right Column Active Content */}
-                {rightTab === 'broadcast' ? (
+                {rightTab === 'broadcast' && (
                   <BroadcastOverlay
                     factPack={factPack}
                     checkAudit={checkAudit}
@@ -333,8 +346,18 @@ export default function Home() {
                     currentMinute={currentMinute}
                     currentSecond={currentSecond}
                   />
-                ) : (
+                )}
+
+                {rightTab === 'pitch' && (
                   <PitchVisualizer factPack={factPack} />
+                )}
+
+                {rightTab === 'audio' && (
+                  <AudioAnnouncer
+                    factPack={factPack}
+                    checkAudit={checkAudit}
+                    isApproved={isApproved}
+                  />
                 )}
 
                 {/* Helpful Guidance Card for Demo Judges */}
@@ -346,10 +369,10 @@ export default function Home() {
                     </h4>
                   </div>
                   <ol className="text-xs text-slate-600 space-y-1 list-decimal list-inside leading-relaxed">
-                    <li>Select an incident (<strong>34&apos; Red Card</strong>, <strong>68&apos; Handball</strong>, or <strong>88&apos; Offside</strong>).</li>
+                    <li>Select any of the <strong>5 incidents</strong> (14&apos; Penalty, 34&apos; Red Card, 54&apos; Goal-Line, 68&apos; Handball, 88&apos; Offside).</li>
                     <li>Click <strong>&ldquo;Generate Clean Draft&rdquo;</strong> to run the Check Step verification gate.</li>
                     <li>Test edge-cases: Click <strong>&ldquo;Test Fake Figure&rdquo;</strong> to observe instant automatic fallback.</li>
-                    <li>Click <strong>&ldquo;Approve for Broadcast Overlay&rdquo;</strong> to stage the graphic live on the TV monitor.</li>
+                    <li>Click <strong>&ldquo;Approve for Broadcast Overlay&rdquo;</strong> to stage the lower third and listen to the <strong>Stadium PA Announcer</strong>.</li>
                   </ol>
                 </div>
               </div>
