@@ -4,7 +4,7 @@ import React from 'react';
 import { FactPack, ExplanationDraft, CheckStepAudit } from '@/lib/types';
 import {
   ShieldCheck, ShieldAlert, Sparkles, Check,
-  AlertTriangle, Send, RefreshCw, Loader2
+  AlertTriangle, Send, RefreshCw, Loader2, Award
 } from 'lucide-react';
 
 interface CheckGateInspectorProps {
@@ -30,9 +30,9 @@ export function CheckGateInspector({
 }: CheckGateInspectorProps) {
   if (!factPack) {
     return (
-      <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-8 text-center h-full flex flex-col items-center justify-center gap-3">
-        <Sparkles className="w-7 h-7 text-slate-700" />
-        <p className="text-sm font-medium text-slate-500">No incident selected</p>
+      <div className="bg-white border border-slate-200 rounded-xl p-8 text-center h-full flex flex-col items-center justify-center gap-3 shadow-xs">
+        <Sparkles className="w-8 h-8 text-slate-300" />
+        <p className="text-sm font-semibold text-slate-600">No active incident selected</p>
       </div>
     );
   }
@@ -40,171 +40,195 @@ export function CheckGateInspector({
   const isPassed = checkAudit?.status === 'PASSED';
 
   return (
-    <div className="bg-[#0f172a] border border-slate-800 rounded-xl flex flex-col divide-y divide-slate-800/60">
+    <div className="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col divide-y divide-slate-100">
 
-      {/* Panel header + generation controls */}
-      <div className="p-4 flex flex-col gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-              Explainability Gate
-            </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 border border-slate-700/50 font-mono">
-              Check Step
-            </span>
+      {/* Header: Explainability Gate Title & Testing Controls */}
+      <div className="p-4 bg-slate-50/50 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-purple-900">
+                The &ldquo;Check Step&rdquo; Guardrail
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-mono font-bold">
+                Explainability Gate
+              </span>
+            </div>
+            <h2 className="text-base font-bold text-slate-900">
+              AI Verification &amp; Broadcast Approval
+            </h2>
           </div>
-          <h2 className="text-sm font-bold text-slate-100">Automated Audit &amp; Producer Staging</h2>
+          <div className="p-2 rounded-lg bg-white border border-slate-200 text-purple-900 shadow-xs">
+            <Award className="w-4 h-4" />
+          </div>
         </div>
 
-        {/* Demo controls: flaw injection */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[10px] text-slate-500 font-medium mr-0.5">Generate:</span>
+        {/* Demo Controls: Generate & Flaw Injection */}
+        <div className="bg-white p-2.5 rounded-lg border border-slate-200 flex items-center justify-between gap-2 flex-wrap shadow-2xs">
+          <span className="text-xs font-bold text-slate-700">Actions:</span>
 
-          <button
-            onClick={() => onGenerate()}
-            disabled={isGenerating}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#38003c] hover:bg-purple-950 text-white text-xs font-semibold transition border border-purple-800/50 disabled:opacity-50"
-            title="Generate verified AI draft"
-          >
-            {isGenerating ? (
-              <Loader2 className="w-3 h-3 animate-spin" />
-            ) : (
-              <Sparkles className="w-3 h-3" />
-            )}
-            <span>Clean Draft</span>
-          </button>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <button
+              onClick={() => onGenerate()}
+              disabled={isGenerating}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#38003c] hover:bg-purple-950 text-white text-xs font-bold transition shadow-xs disabled:opacity-50 cursor-pointer"
+              title="Generate verified AI draft"
+            >
+              {isGenerating ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )}
+              <span>Generate Clean Draft</span>
+            </button>
 
-          <button
-            onClick={() => onGenerate('hallucinated_number')}
-            disabled={isGenerating}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/60 hover:bg-rose-950/60 text-rose-300 hover:text-rose-200 text-xs font-medium transition border border-slate-700/50 hover:border-rose-800/60 disabled:opacity-50"
-            title="Inject fake distance claim (34.5m)"
-          >
-            <AlertTriangle className="w-3 h-3" />
-            <span>Test: Fake Figure</span>
-          </button>
+            <button
+              onClick={() => onGenerate('hallucinated_number')}
+              disabled={isGenerating}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold border border-rose-200 transition disabled:opacity-50 cursor-pointer"
+              title="Inject fake figure (34.5m) to verify Check Step rejection"
+            >
+              <AlertTriangle className="w-3 h-3 text-rose-600" />
+              <span>Test Fake Figure</span>
+            </button>
 
-          <button
-            onClick={() => onGenerate('invalid_id')}
-            disabled={isGenerating}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/60 hover:bg-amber-950/60 text-amber-300 hover:text-amber-200 text-xs font-medium transition border border-slate-700/50 hover:border-amber-800/60 disabled:opacity-50"
-            title="Inject non-existent Event ID (EVT_9999)"
-          >
-            <AlertTriangle className="w-3 h-3" />
-            <span>Test: Fake ID</span>
-          </button>
+            <button
+              onClick={() => onGenerate('invalid_id')}
+              disabled={isGenerating}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition disabled:opacity-50 cursor-pointer"
+              title="Inject unverified Event ID (EVT_9999) to verify rejection"
+            >
+              <AlertTriangle className="w-3 h-3 text-amber-600" />
+              <span>Test Fake ID</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Gate status banner */}
+      {/* Check Step Gate Status Banner */}
       {checkAudit && (
-        <div className={`p-4 flex items-start gap-3 ${
+        <div className={`p-4 transition-all ${
           isPassed
-            ? 'bg-emerald-950/20 border-l-2 border-l-emerald-600'
-            : 'bg-rose-950/20 border-l-2 border-l-rose-600'
+            ? 'bg-emerald-50/70 border-l-4 border-l-emerald-600'
+            : 'bg-rose-50/70 border-l-4 border-l-rose-600'
         }`}>
-          {isPassed ? (
-            <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-          ) : (
-            <ShieldAlert className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
-          )}
+          <div className="flex items-start gap-3">
+            {isPassed ? (
+              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 flex-shrink-0 mt-0.5 border border-emerald-300">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-700 flex-shrink-0 mt-0.5 border border-rose-300">
+                <ShieldAlert className="w-5 h-5" />
+              </div>
+            )}
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className={`text-xs font-bold tracking-wide ${isPassed ? 'text-emerald-300' : 'text-rose-300'}`}>
-                GATE: {checkAudit.status}
-              </span>
-              <div className="flex items-center gap-1.5">
-                {checkAudit.isFallback && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-950/40 text-amber-300 border border-amber-800/50 font-mono">
-                    Fallback Active
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-black tracking-wide uppercase ${
+                    isPassed ? 'text-emerald-900' : 'text-rose-900'
+                  }`}>
+                    GATE STATUS: {checkAudit.status}
                   </span>
-                )}
+                  {checkAudit.isFallback && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-mono font-bold">
+                      Deterministic IFAB Fallback Enforced
+                    </span>
+                  )}
+                </div>
                 <span className="text-[10px] text-slate-500 font-mono">
-                  {new Date(checkAudit.timestamp).toLocaleTimeString()}
+                  Audited at {new Date(checkAudit.timestamp).toLocaleTimeString()}
                 </span>
               </div>
-            </div>
 
-            {/* Audit checklist */}
-            <div className="flex flex-col gap-1.5 text-xs">
-              <AuditRow
-                passed={checkAudit.validCitations}
-                label={checkAudit.validCitations
-                  ? `Citations valid: [${checkAudit.citedIds.join(', ')}]`
-                  : `Unrecognized IDs: [${checkAudit.unrecognizedEventIds.join(', ')}]`}
-              />
-              <AuditRow
-                passed={checkAudit.hallucinatedFigures.length === 0}
-                label={checkAudit.hallucinatedFigures.length === 0
-                  ? 'Numerical grounding: 0 unverified figures'
-                  : `Hallucination: [${checkAudit.hallucinatedFigures.join(', ')}] not in FactPack`}
-              />
-              <AuditRow
-                passed={checkAudit.hasEstimateLabel}
-                label="Impact labelled [ESTIMATE] — compliance verified"
-              />
+              {/* Audit Checklist Items */}
+              <div className="flex flex-col gap-1.5 mt-2">
+                <AuditRowItem
+                  passed={checkAudit.validCitations}
+                  title="Event Citations Audit"
+                  detail={checkAudit.validCitations
+                    ? `All cited Event IDs [${checkAudit.citedIds.join(', ')}] confirmed in FactPack.`
+                    : `Flagged unrecognized Event IDs: [${checkAudit.unrecognizedEventIds.join(', ')}]`}
+                />
+                <AuditRowItem
+                  passed={checkAudit.hallucinatedFigures.length === 0}
+                  title="Numerical Grounding"
+                  detail={checkAudit.hallucinatedFigures.length === 0
+                    ? '0 unverified figures detected. All numbers strictly match telemetry.'
+                    : `Flagged ungrounded figure(s): [${checkAudit.hallucinatedFigures.join(', ')}] not in FactPack.`}
+                />
+                <AuditRowItem
+                  passed={checkAudit.hasEstimateLabel}
+                  title="Editorial Label Compliance"
+                  detail="Analytical leverage strictly verified with explicit [ESTIMATE] designation."
+                />
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Explanation text */}
+      {/* Generated Explanation Content */}
       <div className="p-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between text-xs mb-0.5">
-          <span className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
-            {checkAudit?.isFallback ? 'Deterministic IFAB Fallback' : (draft?.headline || 'AI Explanation Draft')}
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+            {checkAudit?.isFallback ? 'Deterministic IFAB Rule Text' : (draft?.headline || 'Certified Explanation Draft')}
           </span>
           {checkAudit && (
-            <span className="text-[10px] font-mono text-purple-400">
-              {checkAudit.isFallback ? '100% Certified' : 'Gate Passed'}
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-900 border border-purple-200">
+              {checkAudit.isFallback ? '100% Certified Safe' : 'Audit Certified'}
             </span>
           )}
         </div>
 
         <div>
-          <span className="text-[10px] text-slate-600 uppercase font-semibold block mb-1">Fan-Facing Text</span>
-          <p className="text-xs text-slate-200 leading-relaxed bg-slate-900/50 p-3 rounded-lg border border-slate-800/60 min-h-[3rem]">
-            {checkAudit?.finalExplanation || (isGenerating ? 'Generating grounded draft…' : 'Click "Clean Draft" above to run the AI pipeline.')}
-          </p>
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+            Fan-Facing Public Explanation
+          </span>
+          <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 leading-relaxed font-medium">
+            {checkAudit?.finalExplanation || (isGenerating ? 'Generating certified draft from FactPack...' : 'Click "Generate Clean Draft" above to run the pipeline.')}
+          </div>
         </div>
 
         <div>
-          <span className="text-[10px] text-slate-600 uppercase font-semibold block mb-1">Studio / Commentator Notes</span>
-          <p className="text-xs text-slate-300 font-mono leading-relaxed bg-slate-900/50 p-3 rounded-lg border border-slate-800/60 min-h-[2.5rem]">
-            {checkAudit?.finalStudioBrief || (isGenerating ? 'Synthesising pundit notes…' : 'Waiting for draft.')}
-          </p>
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+            Studio Pundit &amp; Commentator Notes
+          </span>
+          <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 font-mono leading-relaxed">
+            {checkAudit?.finalStudioBrief || (isGenerating ? 'Synthesizing commentator brief...' : 'Waiting for verified draft.')}
+          </div>
         </div>
       </div>
 
-      {/* Producer action buttons */}
-      <div className="p-4 flex items-center gap-2">
+      {/* Action Strip: 1-Click Approve to Broadcast */}
+      <div className="p-4 bg-slate-50/50 flex items-center gap-2">
         <button
           onClick={onApproveBroadcast}
           disabled={!checkAudit}
-          className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition ${
+          className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition shadow-sm cursor-pointer ${
             isApproved
-              ? 'bg-emerald-700 hover:bg-emerald-600 text-white'
-              : 'bg-[#38003c] hover:bg-purple-900 text-white border border-purple-800/50'
+              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              : 'bg-[#38003c] hover:bg-purple-950 text-white'
           } disabled:opacity-40 disabled:cursor-not-allowed`}
         >
           {isApproved ? (
             <>
-              <Check className="w-4 h-4 stroke-[2.5]" />
-              <span>Approved — On Air</span>
+              <Check className="w-4 h-4 stroke-[3]" />
+              <span>APPROVED — LIVE ON BROADCAST SCREEN</span>
             </>
           ) : (
             <>
-              <Send className="w-3.5 h-3.5" />
-              <span>Approve for Broadcast</span>
+              <Send className="w-4 h-4" />
+              <span>APPROVE FOR BROADCAST OVERLAY</span>
             </>
           )}
         </button>
 
         <button
           onClick={onForceFallback}
-          className="py-2.5 px-3 rounded-xl bg-slate-800/70 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-xs font-medium transition border border-slate-700/50 flex items-center gap-1.5"
-          title="Force safe IFAB template"
+          className="py-3 px-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition border border-slate-300 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+          title="Force safe rule template"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Force Fallback</span>
@@ -214,15 +238,18 @@ export function CheckGateInspector({
   );
 }
 
-function AuditRow({ passed, label }: { passed: boolean; label: string }) {
+function AuditRowItem({ passed, title, detail }: { passed: boolean; title: string; detail: string }) {
   return (
-    <div className="flex items-start gap-2">
-      <span className={`w-4 h-4 rounded flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 ${
-        passed ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/50' : 'bg-rose-950/60 text-rose-400 border border-rose-800/50'
+    <div className="flex items-start gap-2 text-xs">
+      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 mt-0.5 ${
+        passed ? 'bg-emerald-200 text-emerald-900' : 'bg-rose-200 text-rose-900'
       }`}>
         {passed ? '✓' : '✕'}
       </span>
-      <span className="text-slate-400 text-[11px] leading-relaxed">{label}</span>
+      <div className="min-w-0">
+        <span className="font-bold text-slate-900 mr-1">{title}:</span>
+        <span className="text-slate-600 text-[11px] leading-relaxed">{detail}</span>
+      </div>
     </div>
   );
 }
