@@ -17,10 +17,22 @@ interface SimulationBarProps {
 
 const INCIDENTS = [
   { 
+    id: 'INC_14_PENALTY', 
+    label: "14' Penalty Overturn", 
+    desc: 'Simulation Sanction',
+    activeStyle: 'bg-amber-50 text-amber-900 border-amber-300 ring-2 ring-amber-200' 
+  },
+  { 
     id: 'INC_34_RED_CARD', 
     label: "34' Red Card Review", 
     desc: 'Serious Foul Play',
     activeStyle: 'bg-rose-50 text-rose-800 border-rose-300 ring-2 ring-rose-200' 
+  },
+  { 
+    id: 'INC_54_GOALLINE', 
+    label: "54' Goal-Line Check", 
+    desc: 'Hawk-Eye 9mm On Line',
+    activeStyle: 'bg-emerald-50 text-emerald-900 border-emerald-300 ring-2 ring-emerald-200' 
   },
   { 
     id: 'INC_68_HANDBALL', 
@@ -83,7 +95,7 @@ export function SimulationBar({
         <button
           onClick={onReset}
           className="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition border border-slate-200 cursor-pointer"
-          title="Reset Simulation to 68' Handball"
+          title="Reset Simulation to 14' Penalty"
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
@@ -107,11 +119,11 @@ export function SimulationBar({
         </div>
       </div>
 
-      {/* Right: Select Key Incident */}
+      {/* Right: Select Key Incident (5 moments across match) */}
       <div className="flex items-center gap-1.5 flex-wrap">
         <span className="text-xs text-slate-500 font-semibold flex items-center gap-1 mr-1">
           <AlertCircle className="w-3.5 h-3.5 text-purple-900" />
-          <span className="hidden sm:inline">Incident:</span>
+          <span className="hidden sm:inline">Incidents (5):</span>
         </span>
 
         {INCIDENTS.map(inc => (

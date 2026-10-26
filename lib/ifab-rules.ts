@@ -29,12 +29,26 @@ export const IFAB_RULES_DATABASE: Record<string, IFABRuleReference> = {
       'Reckless is when a player acts with disregard to the danger to, or consequences for, an opponent and must be cautioned (yellow card).',
     summary: 'A challenge showing disregard for the opponent without excessive brutal force is a caution (Yellow Card).'
   },
+  LAW_12_SIMULATION_UNSPORTING: {
+    law: 'Law 12.3',
+    title: 'Disciplinary Action - Simulation & Deception',
+    verbatimClause:
+      'Attempts to deceive the referee, e.g. by feigning injury or pretending to have been fouled (simulation), must be sanctioned as unsporting behaviour with a caution (yellow card).',
+    summary: 'Feigning contact or exaggerating non-existent contact inside the penalty box is unsporting behaviour resulting in a caution.'
+  },
   LAW_11_OFFSIDE_VISION: {
     law: 'Law 11.2',
     title: 'Offside - Interfering with an Opponent',
     verbatimClause:
       'A player in an offside position at the moment the ball is played or touched by a team-mate is only penalised on becoming involved in active play by interfering with play or interfering with an opponent by: preventing an opponent from playing or being able to play the ball by clearly obstructing the opponent’s line of vision or challenging an opponent for the ball.',
     summary: 'A player in offside position obstructing the goalkeeper’s direct line of vision must be penalised for offside.'
+  },
+  LAW_10_GOAL_LINE_TECHNOLOGY: {
+    law: 'Law 10.1',
+    title: 'Determining Outcome of a Match - Goal-Line Technology (GLT)',
+    verbatimClause:
+      'A goal is scored when the whole of the ball passes over the goal line, between the goalposts and under the crossbar, provided that no offence has been committed by the team scoring the goal. GLT systems apply solely to the goal line and only to determine whether a goal has been scored.',
+    summary: 'The whole of the ball must cross the entirety of the goal line. If any millimetre touches the vertical plane of the line, no goal is awarded.'
   },
   VAR_PROTOCOL_CLEAR_AND_OBVIOUS: {
     law: 'VAR Protocol 1.2',

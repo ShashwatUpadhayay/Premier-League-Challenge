@@ -58,6 +58,31 @@ export function generateDeterministicFallback(factPack: FactPack): {
       break;
     }
 
+    case 'PENALTY': {
+      fanExplanation = 
+        `At minute ${factPack.minute}', the on-field penalty awarded against ${factPack.opponentPlayer || 'the defender'} was overturned under ${primaryLaw.law}. ` +
+        `Tracking telemetry confirmed defender pulled leg away resulting in zero illegal contact, with ${factPack.keyPlayer} initiating simulation. ` +
+        `Verified under official event records [${citedEventIds.join(', ')}].`;
+
+      studioBrief = 
+        `PENALTY OVERTURNED (${primaryLaw.law}): Zero defensive foul contact detected on ${factPack.keyPlayer}. ` +
+        `Simulation cautioned under Law 12.3. Direct free kick / restart awarded.`;
+      break;
+    }
+
+    case 'GOAL_REVIEW': {
+      const margin = factPack.telemetry.marginCm ? `${factPack.telemetry.marginCm * 10}mm` : 'sub-centimeter margin';
+      fanExplanation = 
+        `At minute ${factPack.minute}', Goal-Line Technology confirmed no goal on ${factPack.opponentPlayer || 'striker'}'s attempt. ` +
+        `High-speed Hawk-Eye camera tracking verified the ball remained ${margin} on the goal-line vertical plane under ${primaryLaw.law}. ` +
+        `Verified under official event records [${citedEventIds.join(', ')}].`;
+
+      studioBrief = 
+        `NO GOAL CONFIRMED (${primaryLaw.law}): Hawk-Eye GLT confirms ball did not cross entirety of goal line (${margin} on line). ` +
+        `Clean save credited to ${factPack.keyPlayer}.`;
+      break;
+    }
+
     case 'OFFSIDE': {
       const margin = factPack.telemetry.marginCm ? `${factPack.telemetry.marginCm}cm` : 'marginal distance';
       fanExplanation = 
