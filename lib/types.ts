@@ -19,7 +19,10 @@ export type EventType =
   | 'red_card'
   | 'penalty_awarded'
   | 'goal'
-  | 'disallowed_goal';
+  | 'disallowed_goal'
+  | 'corner_kick'
+  | 'header'
+  | string;
 
 export interface MatchCoordinates {
   x: number; // 0 to 100 (0 = home goal, 100 = away goal)
@@ -81,7 +84,22 @@ export interface FactPack {
   title: string;
   description: string;
   onFieldDecision: string;
-  varReviewStatus: 'Check Complete - No Penalty' | 'Overturn - Red Card' | 'Overturn - Offside' | 'Check Confirmed';
+  varReviewStatus:
+    | 'Check Complete - No Penalty'
+    | 'Overturn - Red Card'
+    | 'Overturn - Offside'
+    | 'Check Confirmed'
+    | 'Overturned - No Foul / Simulation'
+    | 'Hawk-Eye GLT Confirmed - No Goal'
+    | 'Check Confirmed - Goal Stands'
+    | 'Second Yellow Not Reviewable by VAR Protocol'
+    | 'Check Confirmed - No Impeding'
+    | 'Check Complete - Penalty Confirmed'
+    | 'Overturned - Goalkeeper Played Ball Cleanly'
+    | 'Overturned - Player Was Onside'
+    | 'Referee Called to Monitor - Penalty Awarded'
+    | 'Check Confirmed by VAR (Later Overturned by FA Commission)'
+    | string;
   finalDecision: string;
   keyPlayer: string;
   opponentPlayer?: string;
@@ -139,7 +157,14 @@ export interface KmiRecord {
   title: string;
   onFieldCall: string;
   varRecommendation: string;
-  panelVerdict: 'Correct Call' | 'Incorrect Call - VAR Should Intervene' | 'Split 3-2 Verdict';
+  panelVerdict:
+    | 'Correct Call'
+    | 'Incorrect Call - VAR Should Intervene'
+    | 'Split 3-2 Verdict'
+    | 'Split 4-1 Verdict'
+    | 'Split 2-3 Incorrect Intervention'
+    | 'Split 1-4 Incorrect Decision'
+    | string;
   panelVotes: {
     inFavor: number;
     against: number;
