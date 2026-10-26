@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { KmiRecord } from '@/lib/types';
 import {
   Globe, Users, CheckCircle2, ShieldCheck,
-  TrendingUp, BookOpen, SlidersHorizontal
+  TrendingUp, BookOpen, SlidersHorizontal, Award
 } from 'lucide-react';
 
 interface KmiPortalProps {
@@ -24,11 +24,11 @@ const LANGUAGES: { code: Language; label: string; flag: string }[] = [
 const CATEGORIES = ['ALL', 'RED_CARD', 'HANDBALL', 'OFFSIDE'] as const;
 
 const CATEGORY_BADGE: Record<string, string> = {
-  RED_CARD:    'bg-rose-950/50 text-rose-300 border-rose-800/50',
-  HANDBALL:    'bg-purple-950/50 text-purple-300 border-purple-800/50',
-  OFFSIDE:     'bg-sky-950/50 text-sky-300 border-sky-800/50',
-  PENALTY:     'bg-amber-950/50 text-amber-300 border-amber-800/50',
-  GOAL_REVIEW: 'bg-emerald-950/50 text-emerald-300 border-emerald-800/50',
+  RED_CARD:    'bg-rose-50 text-rose-800 border-rose-200',
+  HANDBALL:    'bg-purple-50 text-purple-800 border-purple-200',
+  OFFSIDE:     'bg-sky-50 text-sky-800 border-sky-200',
+  PENALTY:     'bg-amber-50 text-amber-800 border-amber-200',
+  GOAL_REVIEW: 'bg-emerald-50 text-emerald-800 border-emerald-200',
 };
 
 export function KmiPortal({ records }: KmiPortalProps) {
@@ -40,42 +40,42 @@ export function KmiPortal({ records }: KmiPortalProps) {
     : records.filter(r => r.category === selectedCategory);
 
   return (
-    <div className="flex flex-col gap-5 max-w-5xl mx-auto">
+    <div className="flex flex-col gap-5 max-w-5xl mx-auto pb-8">
 
-      {/* Page header */}
-      <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* Top Banner: Independent KMI Panel Review */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
         <div>
-          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-900">
+              Independent KMI Panel Review
+            </span>
+            <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono font-bold">
               Official Post-Match Dossier
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700/50 font-mono">
-              KMI Panel Review
-            </span>
           </div>
-          <h2 className="text-lg md:text-xl font-bold text-slate-100">
-            Arsenal vs Manchester City — Matchweek 8
+          <h2 className="text-xl md:text-2xl font-black text-slate-900">
+            Arsenal vs Manchester City — Matchweek 8 Review
           </h2>
-          <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
-            Comprehensive review of all contested refereeing and VAR decisions, evaluated by the 5-member Independent Key Match Incidents Panel.
+          <p className="text-xs text-slate-600 mt-1.5 max-w-2xl leading-relaxed">
+            A comprehensive, multilingual analysis of all contested refereeing and VAR decisions evaluated by the 5-member Independent Key Match Incidents Panel.
           </p>
         </div>
 
-        {/* Language selector */}
+        {/* Multilingual Selector */}
         <div className="flex flex-col items-start md:items-end gap-1.5 flex-shrink-0">
-          <span className="text-[10px] text-slate-500 font-medium flex items-center gap-1">
-            <Globe className="w-3 h-3" />
-            Delivery language (Azure Translator)
+          <span className="text-xs text-slate-600 font-semibold flex items-center gap-1.5">
+            <Globe className="w-3.5 h-3.5 text-purple-900" />
+            <span>Delivery Language (Azure Translator):</span>
           </span>
-          <div className="flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-800">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
             {LANGUAGES.map(lang => (
               <button
                 key={lang.code}
                 onClick={() => setSelectedLang(lang.code)}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition ${
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                   selectedLang === lang.code
-                    ? 'bg-[#38003c] text-white border border-purple-800/50'
-                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'
+                    ? 'bg-[#38003c] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                 }`}
               >
                 <span>{lang.flag}</span>
@@ -86,20 +86,20 @@ export function KmiPortal({ records }: KmiPortalProps) {
         </div>
       </div>
 
-      {/* Category filter */}
+      {/* Category Filter Pills */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-slate-500 flex items-center gap-1.5">
-          <SlidersHorizontal className="w-3 h-3" />
+        <span className="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
+          <SlidersHorizontal className="w-3.5 h-3.5" />
           Filter:
         </span>
         {CATEGORIES.map(cat => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3 py-1 rounded-lg text-xs font-medium transition border ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition border cursor-pointer ${
               selectedCategory === cat
-                ? 'bg-slate-700 text-slate-100 border-slate-600'
-                : 'bg-slate-900/60 text-slate-500 hover:text-slate-300 border-slate-800/60 hover:border-slate-700'
+                ? 'bg-[#38003c] text-white border-[#38003c] shadow-xs'
+                : 'bg-white text-slate-600 hover:text-slate-900 border-slate-200 hover:bg-slate-50'
             }`}
           >
             {cat === 'ALL' ? `All Incidents (${records.length})` : cat.replace('_', ' ')}
@@ -107,121 +107,134 @@ export function KmiPortal({ records }: KmiPortalProps) {
         ))}
       </div>
 
-      {/* Incident cards */}
+      {/* Incident Review Cards */}
       <div className="flex flex-col gap-4">
         {filteredRecords.map(record => {
           const isSplit = record.panelVerdict.includes('Split');
           const isArabic = selectedLang === 'ar';
-          const badgeClass = CATEGORY_BADGE[record.category] ?? 'bg-slate-800 text-slate-400 border-slate-700';
+          const badgeClass = CATEGORY_BADGE[record.category] ?? 'bg-slate-100 text-slate-800 border-slate-200';
 
           return (
             <div
               key={record.incidentId}
-              className="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition"
+              className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs hover:border-slate-300 transition"
             >
-              {/* Card header */}
-              <div className="p-4 border-b border-slate-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-900 text-slate-200 border border-slate-800 tabular-nums">
+              {/* Card Header: Minute, Title & Panel Verdict */}
+              <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3.5">
+                  <span className="text-base font-mono font-black px-3 py-1 rounded-lg bg-white text-slate-900 border border-slate-200 shadow-2xs tabular-nums">
                     {record.minute}′
                   </span>
                   <div>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${badgeClass}`}>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${badgeClass}`}>
                       {record.category.replace('_', ' ')}
                     </span>
-                    <h3 className="text-sm font-bold text-slate-100 mt-0.5 leading-snug">{record.title}</h3>
+                    <h3 className="text-base font-bold text-slate-900 mt-1 leading-snug">
+                      {record.title}
+                    </h3>
                   </div>
                 </div>
 
+                {/* Panel Vote & Verdict */}
                 <div className="flex items-center gap-2 self-start sm:self-center">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">
-                    <Users className="w-3 h-3 text-slate-500" />
-                    <span className="font-mono text-slate-400">
-                      {record.panelVotes.inFavor}–{record.panelVotes.against}
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs shadow-2xs">
+                    <Users className="w-3.5 h-3.5 text-purple-900" />
+                    <span className="font-mono font-bold text-slate-800">
+                      Panel: {record.panelVotes.inFavor}–{record.panelVotes.against}
                     </span>
                   </div>
-                  <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${
+                  <span className={`px-3 py-1.5 rounded-lg text-xs font-black border ${
                     isSplit
-                      ? 'bg-amber-950/50 text-amber-300 border-amber-800/50'
-                      : 'bg-emerald-950/50 text-emerald-300 border-emerald-800/50'
+                      ? 'bg-amber-50 text-amber-900 border-amber-300'
+                      : 'bg-emerald-50 text-emerald-900 border-emerald-300'
                   }`}>
                     {record.panelVerdict}
                   </span>
                 </div>
               </div>
 
-              <div className="p-4 flex flex-col gap-4">
-                {/* On-field vs VAR */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  <div className="bg-slate-900/50 p-2.5 rounded-lg border border-slate-800/60">
-                    <span className="text-[10px] text-slate-500 uppercase font-semibold block mb-1">On-Field Call</span>
-                    <span className="text-slate-300 font-medium">{record.onFieldCall}</span>
+              <div className="p-5 flex flex-col gap-4">
+                {/* On-Field vs VAR Recommendation */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block mb-1">
+                      On-Field Call
+                    </span>
+                    <span className="text-slate-800 font-bold">{record.onFieldCall}</span>
                   </div>
-                  <div className="bg-slate-900/50 p-2.5 rounded-lg border border-purple-900/20">
-                    <span className="text-[10px] text-purple-400/70 uppercase font-semibold block mb-1">VAR Recommendation</span>
-                    <span className="text-emerald-400 font-medium">{record.varRecommendation}</span>
+                  <div className="bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
+                    <span className="text-[10px] text-emerald-800 uppercase font-bold tracking-wider block mb-1">
+                      VAR Recommendation
+                    </span>
+                    <span className="text-emerald-900 font-bold">{record.varRecommendation}</span>
                   </div>
                 </div>
 
-                {/* Multilingual explanation */}
-                <div className="bg-slate-900/40 p-4 rounded-lg border border-slate-800/60">
+                {/* Multilingual Official Explanation */}
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                   <div className="flex items-center justify-between text-xs mb-2.5">
-                    <span className="font-medium text-slate-400 flex items-center gap-1.5">
-                      <Globe className="w-3.5 h-3.5" />
-                      Official Verdict ({selectedLang.toUpperCase()})
+                    <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-purple-900" />
+                      Official KMI Panel Verdict Explanation ({selectedLang.toUpperCase()})
                     </span>
-                    <span className="text-[10px] text-slate-600 font-mono">Deterministic · Fact-Audited</span>
+                    <span className="text-[10px] text-slate-400 font-mono font-bold">
+                      Certified Grounded
+                    </span>
                   </div>
-                  <p className={`text-sm text-slate-200 leading-relaxed ${isArabic ? 'text-right' : ''}`}>
+                  <p className={`text-sm text-slate-800 leading-relaxed font-medium ${isArabic ? 'text-right' : ''}`}>
                     {record.explanation[selectedLang] || record.explanation.en}
                   </p>
                 </div>
 
-                {/* Facts + IFAB */}
+                {/* Key Facts & Applicable Regulation */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                  <div className="bg-slate-900/40 p-3 rounded-lg border border-slate-800/60">
-                    <span className="font-semibold text-slate-400 flex items-center gap-1.5 mb-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                      Established Facts
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <span className="font-bold text-slate-900 flex items-center gap-1.5 mb-2.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      Established Facts &amp; Telemetry
                     </span>
                     <ul className="space-y-1.5">
                       {record.keyFacts.map((fact, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-[11px] text-slate-400">
-                          <span className="text-slate-600 mt-0.5 flex-shrink-0">›</span>
+                        <li key={idx} className="flex items-start gap-2 text-xs text-slate-700">
+                          <span className="text-purple-900 font-bold mt-0.5">•</span>
                           <span>{fact}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="bg-slate-900/40 p-3 rounded-lg border border-slate-800/60 flex flex-col justify-between">
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between">
                     <div>
-                      <span className="font-semibold text-slate-400 flex items-center gap-1.5 mb-2">
-                        <BookOpen className="w-3.5 h-3.5 text-amber-500" />
-                        Applicable IFAB Law
+                      <span className="font-bold text-slate-900 flex items-center gap-1.5 mb-2">
+                        <BookOpen className="w-3.5 h-3.5 text-amber-600" />
+                        Applicable IFAB Regulation
                       </span>
-                      <p className="text-xs text-slate-300 font-medium">{record.applicableLaw}</p>
+                      <p className="text-xs text-amber-950 font-bold leading-snug">
+                        {record.applicableLaw}
+                      </p>
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-slate-800/60 flex items-center gap-1.5 text-[11px] text-slate-500">
-                      <TrendingUp className="w-3 h-3" />
-                      <span>{record.impactEstimate}</span>
+                    <div className="mt-3 pt-2.5 border-t border-slate-200 flex items-center justify-between text-xs">
+                      <span className="text-slate-600 flex items-center gap-1 font-medium">
+                        <TrendingUp className="w-3.5 h-3.5 text-purple-900" />
+                        <span>{record.impactEstimate}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Citation trail */}
-                <div className="flex items-center justify-between text-[11px] text-slate-600 font-mono pt-0.5">
+                {/* Citations & Reference */}
+                <div className="flex items-center justify-between text-xs text-slate-500 font-mono pt-1 border-t border-slate-100 flex-wrap gap-2">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                    <span className="text-slate-500">Citations:</span>
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="font-semibold text-slate-600">Audited Citations:</span>
                     {record.citations.map(c => (
-                      <span key={c} className="px-1.5 py-0.5 rounded bg-slate-900 text-slate-500 border border-slate-800/80 hover:text-slate-300 transition">
+                      <span key={c} className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200 text-[11px] font-bold">
                         {c}
                       </span>
                     ))}
                   </div>
-                  <span className="text-slate-700 hidden sm:block">{record.incidentId}</span>
+                  <span className="text-slate-400 text-[11px]">Dossier ID: {record.incidentId}</span>
                 </div>
               </div>
             </div>

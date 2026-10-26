@@ -14,7 +14,7 @@ import {
   KMI_PANEL_RECORDS
 } from '@/lib/match-data';
 import { FactPack, ExplanationDraft, CheckStepAudit, MatchEvent } from '@/lib/types';
-import { Radio, LayoutGrid } from 'lucide-react';
+import { Radio, ShieldCheck, Database, Tv, Crosshair, CheckCircle2 } from 'lucide-react';
 
 export default function Home() {
   const [activeMode, setActiveMode] = useState<'live' | 'kmi'>('live');
@@ -23,7 +23,12 @@ export default function Home() {
   const [currentMinute, setCurrentMinute] = useState(68);
   const [currentSecond, setCurrentSecond] = useState(42);
   const [activeIncidentId, setActiveIncidentId] = useState<string | null>('INC_68_HANDBALL');
-  const [column3View, setColumn3View] = useState<'both' | 'pitch' | 'broadcast'>('both');
+  
+  // Left column tab: 'gate' (AI Audit & Approval) vs 'facts' (Ground Truth Telemetry)
+  const [leftTab, setLeftTab] = useState<'gate' | 'facts'>('gate');
+
+  // Right column tab: 'broadcast' (Live TV Feed) vs 'pitch' (Tactical 2D Pitch)
+  const [rightTab, setRightTab] = useState<'broadcast' | 'pitch'>('broadcast');
 
   const [factPack, setFactPack] = useState<FactPack | null>(MATCH_FACT_PACKS['INC_68_HANDBALL']);
   const [draft, setDraft] = useState<ExplanationDraft | null>(null);
@@ -95,7 +100,7 @@ export default function Home() {
         const event: MatchEvent = payload.event;
         setCurrentMinute(event.minute);
         setCurrentSecond(event.second);
-        setRecentEvents(prev => [event, ...prev.slice(0, 4)]);
+        setRecentEvents(prev => [event, ...prev.slice(0, 3)]);
         if (event.isContested && event.incidentId && MATCH_FACT_PACKS[event.incidentId]) {
           handleJumpToIncident(event.incidentId);
         }
@@ -129,7 +134,8 @@ export default function Home() {
   }, [isPlaying, speed, handleJumpToIncident]);
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans selection:bg-purple-100 selection:text-purple-900">
+      {/* Premier League Header */}
       <Header
         match={CURRENT_MATCH}
         activeMode={activeMode}
@@ -140,7 +146,7 @@ export default function Home() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-6 py-5 flex flex-col gap-4">
         {activeMode === 'live' ? (
           <>
-            {/* Simulation control strip */}
+            {/* Top Control Strip: Simulation & Incident Picker */}
             <SimulationBar
               currentMinute={currentMinute}
               currentSecond={currentSecond}
@@ -156,113 +162,170 @@ export default function Home() {
               activeIncidentId={activeIncidentId}
             />
 
-            {/* Live match event ticker */}
+            {/* Live Ticker Feed (Only when streaming or events present) */}
             {recentEvents.length > 0 && (
-              <div className="bg-[#0f172a] border border-slate-800 rounded-lg px-3 py-2 flex items-center gap-2 overflow-x-auto">
+              <div className="bg-white border border-slate-200 rounded-lg px-3.5 py-2 flex items-center gap-2 overflow-x-auto shadow-2xs">
                 <span className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1.5 shrink-0">
-                  <Radio className="w-3 h-3 text-slate-600" />
-                  Match Feed
+                  <Radio className="w-3 h-3 text-purple-900" />
+                  Live Feed:
                 </span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   {recentEvents.map(evt => (
                     <div
                       key={evt.eventId}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800/80 shrink-0 text-xs"
+                      className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-50 border border-slate-200 shrink-0 text-xs"
                     >
-                      <span className="font-mono text-slate-400 font-semibold tabular-nums">{evt.minute}&apos;</span>
-                      <span className="font-medium text-slate-300">{evt.player}:</span>
-                      <span className="text-slate-500">{evt.detail}</span>
+                      <span className="font-mono text-purple-900 font-bold tabular-nums">{evt.minute}&apos;</span>
+                      <span className="font-bold text-slate-800">{evt.player}:</span>
+                      <span className="text-slate-600">{evt.detail}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Active contested incident summary bar */}
+            {/* Active Incident Summary Bar */}
             {factPack && (
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-[#38003c]/80 flex items-center justify-center border border-purple-900/50 flex-shrink-0">
-                    <span className="text-[10px] font-black text-white">VAR</span>
+                  <div className="w-8 h-8 rounded-lg bg-[#38003c] flex items-center justify-center text-white font-black text-xs shadow-xs flex-shrink-0">
+                    VAR
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-bold text-slate-200">
-                        Contested Moment — {factPack.minute}&apos;
+                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                      <span className="text-xs font-bold text-slate-900">
+                        Contested Review — Minute {factPack.minute}&apos;
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono border border-slate-700/50">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-900 border border-purple-200 uppercase font-mono">
                         {factPack.category}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 truncate">{factPack.description}</p>
+                    <p className="text-xs text-slate-600 truncate">{factPack.description}</p>
                   </div>
                 </div>
-                <div className="text-xs text-slate-500">
-                  Official ruling: <span className="font-semibold text-emerald-400">{factPack.finalDecision}</span>
+
+                <div className="flex items-center gap-3">
+                  <div className="text-xs text-slate-600">
+                    Official Ruling: <strong className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">{factPack.finalDecision}</strong>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Three-column workstation */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+            {/* Main Workstation: Clean 2-Column Uncluttered Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-              {/* Column 1: Ground Truth Fact Pack */}
-              <div>
-                <SectionLabel label="Ground Truth" sub="Official FactPack" />
-                <FactPackPanel factPack={factPack} />
-              </div>
+              {/* Left Column (7 cols = ~58% width): Decision Intelligence Pipeline */}
+              <div className="lg:col-span-7 flex flex-col gap-3">
+                {/* Clean Tab Selector for Left Column */}
+                <div className="flex items-center justify-between bg-slate-200/70 p-1 rounded-xl border border-slate-300/70">
+                  <div className="flex items-center gap-1 w-full sm:w-auto">
+                    <button
+                      onClick={() => setLeftTab('gate')}
+                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        leftTab === 'gate'
+                          ? 'bg-white text-slate-900 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <ShieldCheck className="w-4 h-4 text-purple-900" />
+                      <span>Check Step Audit &amp; Approval</span>
+                      {checkAudit && (
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                          checkAudit.status === 'PASSED'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-rose-100 text-rose-800'
+                        }`}>
+                          {checkAudit.status === 'PASSED' ? 'PASSED' : 'FALLBACK'}
+                        </span>
+                      )}
+                    </button>
 
-              {/* Column 2: Check Step Gate */}
-              <div>
-                <SectionLabel label="AI Audit" sub="Check Step Guardrail" />
-                <CheckGateInspector
-                  factPack={factPack}
-                  draft={draft}
-                  checkAudit={checkAudit}
-                  isGenerating={isGenerating}
-                  onGenerate={(flaw) => {
-                    if (activeIncidentId) loadExplanation(activeIncidentId, flaw);
-                  }}
-                  onApproveBroadcast={() => setIsApproved(true)}
-                  onForceFallback={() => {
-                    if (factPack) {
-                      setCheckAudit(prev =>
-                        prev ? { ...prev, isFallback: true, status: 'FAILED_FALLBACK' } : null
-                      );
-                    }
-                  }}
-                  isApproved={isApproved}
-                />
-              </div>
-
-              {/* Column 3: Visual Output */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <SectionLabel label="Visual Output" sub="Broadcast Staging" />
-                  {/* Column 3 view controller */}
-                  <div className="flex items-center gap-0.5 bg-slate-900/70 p-0.5 rounded-lg border border-slate-800/60 text-[10px] mb-1.5">
-                    <LayoutGrid className="w-3 h-3 text-slate-600 mx-1.5" />
-                    {(['both', 'pitch', 'broadcast'] as const).map(v => (
-                      <button
-                        key={v}
-                        onClick={() => setColumn3View(v)}
-                        className={`px-2 py-0.5 rounded font-medium capitalize transition ${
-                          column3View === v
-                            ? 'bg-slate-700 text-slate-100'
-                            : 'text-slate-500 hover:text-slate-300'
-                        }`}
-                      >
-                        {v === 'both' ? 'Both' : v === 'pitch' ? '2D Pitch' : 'TV Feed'}
-                      </button>
-                    ))}
+                    <button
+                      onClick={() => setLeftTab('facts')}
+                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        leftTab === 'facts'
+                          ? 'bg-white text-slate-900 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <Database className="w-4 h-4 text-purple-900" />
+                      <span>Ground Truth &amp; IFAB Laws</span>
+                    </button>
                   </div>
+
+                  <span className="text-[11px] font-mono text-slate-500 hidden md:inline px-3 font-semibold">
+                    Explainability Layer
+                  </span>
                 </div>
 
-                {(column3View === 'both' || column3View === 'pitch') && (
-                  <PitchVisualizer factPack={factPack} />
+                {/* Left Column Active Content */}
+                {leftTab === 'gate' ? (
+                  <CheckGateInspector
+                    factPack={factPack}
+                    draft={draft}
+                    checkAudit={checkAudit}
+                    isGenerating={isGenerating}
+                    onGenerate={(flaw) => {
+                      if (activeIncidentId) loadExplanation(activeIncidentId, flaw);
+                    }}
+                    onApproveBroadcast={() => setIsApproved(true)}
+                    onForceFallback={() => {
+                      if (factPack) {
+                        setCheckAudit(prev =>
+                          prev ? { ...prev, isFallback: true, status: 'FAILED_FALLBACK' } : null
+                        );
+                      }
+                    }}
+                    isApproved={isApproved}
+                  />
+                ) : (
+                  <FactPackPanel factPack={factPack} />
                 )}
+              </div>
 
-                {(column3View === 'both' || column3View === 'broadcast') && (
+              {/* Right Column (5 cols = ~42% width): Live Staging & Visual Output */}
+              <div className="lg:col-span-5 flex flex-col gap-3">
+                {/* Clean Tab Selector for Right Column */}
+                <div className="flex items-center justify-between bg-slate-200/70 p-1 rounded-xl border border-slate-300/70">
+                  <div className="flex items-center gap-1 w-full sm:w-auto">
+                    <button
+                      onClick={() => setRightTab('broadcast')}
+                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        rightTab === 'broadcast'
+                          ? 'bg-white text-slate-900 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <Tv className="w-4 h-4 text-purple-900" />
+                      <span>TV Broadcast Feed</span>
+                      {isApproved && (
+                        <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-800 font-bold font-mono">
+                          ON AIR
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => setRightTab('pitch')}
+                      className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        rightTab === 'pitch'
+                          ? 'bg-white text-slate-900 shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      <Crosshair className="w-4 h-4 text-purple-900" />
+                      <span>Tactical 2D Pitch (SAOT)</span>
+                    </button>
+                  </div>
+
+                  <span className="text-[11px] font-mono text-slate-500 hidden md:inline px-3 font-semibold">
+                    Studio Staging
+                  </span>
+                </div>
+
+                {/* Right Column Active Content */}
+                {rightTab === 'broadcast' ? (
                   <BroadcastOverlay
                     factPack={factPack}
                     checkAudit={checkAudit}
@@ -270,29 +333,39 @@ export default function Home() {
                     currentMinute={currentMinute}
                     currentSecond={currentSecond}
                   />
+                ) : (
+                  <PitchVisualizer factPack={factPack} />
                 )}
+
+                {/* Helpful Guidance Card for Demo Judges */}
+                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-purple-900" />
+                    <h4 className="text-xs font-bold text-slate-900">
+                      Live Demo Flow for Hackathon Judges
+                    </h4>
+                  </div>
+                  <ol className="text-xs text-slate-600 space-y-1 list-decimal list-inside leading-relaxed">
+                    <li>Select an incident (<strong>34&apos; Red Card</strong>, <strong>68&apos; Handball</strong>, or <strong>88&apos; Offside</strong>).</li>
+                    <li>Click <strong>&ldquo;Generate Clean Draft&rdquo;</strong> to run the Check Step verification gate.</li>
+                    <li>Test edge-cases: Click <strong>&ldquo;Test Fake Figure&rdquo;</strong> to observe instant automatic fallback.</li>
+                    <li>Click <strong>&ldquo;Approve for Broadcast Overlay&rdquo;</strong> to stage the graphic live on the TV monitor.</li>
+                  </ol>
+                </div>
               </div>
+
             </div>
           </>
         ) : (
+          /* Mode 2: Key Match Incidents (KMI) Dossier */
           <KmiPortal records={KMI_PANEL_RECORDS} />
         )}
       </main>
 
-      <footer className="border-t border-slate-800/60 bg-[#090d16] py-3 px-6 text-center">
-        <p className="text-[11px] text-slate-600">
-          Microsoft × Premier League &ldquo;Inside the Game&rdquo; Developer Hackathon · Decision Intelligence Architecture
-        </p>
+      {/* Clean Footer */}
+      <footer className="border-t border-slate-200 bg-white py-4 px-6 text-center text-xs text-slate-500">
+        <p>Microsoft × Premier League &ldquo;Inside the Game&rdquo; Developer Hackathon • Decision Intelligence Architecture</p>
       </footer>
-    </div>
-  );
-}
-
-function SectionLabel({ label, sub }: { label: string; sub: string }) {
-  return (
-    <div className="mb-2">
-      <span className="text-xs font-bold text-slate-300">{label}</span>
-      <span className="ml-2 text-[10px] text-slate-600 font-mono">{sub}</span>
     </div>
   );
 }
