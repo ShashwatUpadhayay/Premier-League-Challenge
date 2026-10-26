@@ -1,7 +1,9 @@
-import React from 'react';
-import { ShieldCheck, Radio, FileText } from 'lucide-react';
-import { MatchMetadata } from '@/lib/types';
+'use client';
 
+import React, { useState } from 'react';
+import { Radio, FileText, Cloud, CheckCircle2, Wifi, WifiOff } from 'lucide-react';
+import { MatchMetadata } from '@/lib/types';
+import { AzureModal } from '@/components/azure-modal';
 
 interface HeaderProps {
   match: MatchMetadata;
@@ -11,71 +13,101 @@ interface HeaderProps {
 }
 
 export function Header({ match, activeMode, onModeChange, isStreaming }: HeaderProps) {
+  const [isAzureModalOpen, setIsAzureModalOpen] = useState(false);
+
   return (
-    <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-3">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Left: Premier League Branding & Match Title */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-900 to-indigo-600 flex items-center justify-center border border-purple-500/30 shadow-md">
-            <span className="font-black text-xl text-[#00ff87] tracking-tighter">PL</span>
+    <>
+      <header className="border-b border-slate-800/60 bg-[#0c121e]/98 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+
+          {/* Left: Branding + Match Info */}
+          <div className="flex items-center gap-3.5">
+            {/* PL logo mark */}
+            <div className="w-9 h-9 rounded-lg bg-[#38003c] flex items-center justify-center border border-purple-800/40 flex-shrink-0">
+              <span className="font-black text-sm text-white tracking-tighter">PL</span>
+            </div>
+
+            <div className="min-w-0">
+              {/* Sub-label row */}
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                  Decision Intelligence
+                </span>
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-950/50 text-emerald-400 border border-emerald-900/60">
+                  <CheckCircle2 className="w-2.5 h-2.5" />
+                  Grounded &amp; Certified
+                </span>
+              </div>
+
+              {/* Match scoreline */}
+              <h1 className="text-sm lg:text-base font-bold text-slate-100 flex items-center gap-2 flex-wrap">
+                <span className="text-slate-100">{match.homeTeam}</span>
+                <span className="px-2 py-0.5 rounded-md bg-slate-800 text-xs font-mono font-bold text-white border border-slate-700/60 tabular-nums">
+                  {match.homeScore} – {match.awayScore}
+                </span>
+                <span className="text-slate-100">{match.awayTeam}</span>
+                <span className="text-xs text-slate-500 font-normal hidden md:inline">
+                  · {match.stadium}
+                </span>
+              </h1>
+            </div>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-purple-400">
-                Official VAR Decision Intelligence
-              </span>
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <ShieldCheck className="w-3 h-3" /> Grounded & Verified
+
+          {/* Right: controls */}
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+
+            {/* Azure Architecture button */}
+            <button
+              onClick={() => setIsAzureModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white border border-slate-700/60 text-xs font-medium transition"
+              title="Azure Hackathon Architecture & Rules"
+            >
+              <Cloud className="w-3.5 h-3.5 text-slate-400" />
+              <span className="hidden sm:inline">Azure Architecture</span>
+            </button>
+
+            {/* Stream status */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/50 text-xs">
+              {isStreaming ? (
+                <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <WifiOff className="w-3.5 h-3.5 text-slate-500" />
+              )}
+              <span className={`font-mono text-[11px] ${isStreaming ? 'text-emerald-400' : 'text-slate-500'}`}>
+                {isStreaming ? 'LIVE' : 'STANDBY'}
               </span>
             </div>
-            <h1 className="text-base lg:text-lg font-bold text-white flex items-center gap-2">
-              <span>{match.homeTeam}</span>
-              <span className="px-2 py-0.5 rounded bg-slate-800 text-sm font-mono text-emerald-400">
-                {match.homeScore} - {match.awayScore}
-              </span>
-              <span>{match.awayTeam}</span>
-              <span className="text-xs text-slate-400 font-normal hidden sm:inline">
-                • {match.stadium}
-              </span>
-            </h1>
+
+            {/* Mode switcher */}
+            <div className="bg-slate-800/60 p-0.5 rounded-lg border border-slate-700/50 flex items-center gap-0.5">
+              <button
+                onClick={() => onModeChange('live')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+                  activeMode === 'live'
+                    ? 'bg-[#38003c] text-white border border-purple-800/50'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                }`}
+              >
+                <Radio className="w-3 h-3" />
+                <span>Live Studio</span>
+              </button>
+              <button
+                onClick={() => onModeChange('kmi')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+                  activeMode === 'kmi'
+                    ? 'bg-[#38003c] text-white border border-purple-800/50'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                }`}
+              >
+                <FileText className="w-3 h-3" />
+                <span>Post-Match KMI</span>
+              </button>
+            </div>
           </div>
         </div>
+      </header>
 
-        {/* Right: Mode Switcher & Stream Status */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs">
-            <span className={`w-2 h-2 rounded-full ${isStreaming ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
-            <span className="text-slate-300 font-mono text-[11px]">
-              {isStreaming ? 'LIVE STREAM ACTIVE' : 'STREAM STANDBY'}
-            </span>
-          </div>
-
-          <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 flex items-center gap-1">
-            <button
-              onClick={() => onModeChange('live')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                activeMode === 'live'
-                  ? 'bg-purple-700 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-              }`}
-            >
-              <Radio className="w-3.5 h-3.5" />
-              <span>Mode 1: Live Studio</span>
-            </button>
-            <button
-              onClick={() => onModeChange('kmi')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                activeMode === 'kmi'
-                  ? 'bg-purple-700 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>Mode 2: Post-Match KMI</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
+      <AzureModal isOpen={isAzureModalOpen} onClose={() => setIsAzureModalOpen(false)} />
+    </>
   );
 }
